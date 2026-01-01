@@ -15,6 +15,7 @@
             --accent-hover: #339af0;
             --border-color: #333333;
             --window-bg: #2d2d2d;
+            --input-bg: #333;
         }
 
         body {
@@ -93,6 +94,36 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
+        /* 入力フォーム周り */
+        .input-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+        
+        .input-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--sub-text);
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: white;
+            font-size: 1rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--accent-color);
+        }
+
         button {
             background-color: var(--accent-color);
             color: #fff;
@@ -112,10 +143,6 @@
             background-color: var(--accent-hover);
             transform: translateY(-2px);
             box-shadow: 0 6px 8px rgba(0,0,0,0.3);
-        }
-
-        button:active {
-            transform: translateY(0);
         }
 
         button:disabled {
@@ -167,6 +194,13 @@
             color: #888;
             font-size: 0.8rem;
         }
+
+        .server-status {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 5px;
+            text-align: right;
+        }
     </style>
 </head>
 <body>
@@ -177,106 +211,68 @@
 
         <div class="system-window" id="output">
             <div class="log-item">System ready...</div>
-            <div class="log-item">Waiting for user action...</div>
+            <div class="log-item">Waiting for user input...</div>
         </div>
 
-        <!-- ボタンはここに1つだけ配置 -->
+        <div class="input-group">
+            <label class="input-label">社員名 (Employee Name)</label>
+            <input type="text" id="username" placeholder="名前を入力すると結果が日替わり固定されます">
+        </div>
+
         <button id="drawBtn" onclick="drawFortune()">出勤打刻 (Start Work)</button>
+        <div class="server-status" id="serverStatus">Mode: Local/Demo</div>
     </div>
 
     <script>
-        // おみくじデータ（新社会人向けネタ）
-        const fortunes = [
-            {
-                type: "ssr",
-                title: "【SSR】特別ボーナス支給",
-                desc: "評価Sランク確定。予想以上の額が振り込まれます。税金のことは一旦忘れましょう。",
-                item: "高級焼肉店の予約",
-                spot: "ATM前"
-            },
-            {
-                type: "sr",
-                title: "【大吉】定時退社RTA成功",
-                desc: "タスクが奇跡的に片付き、定時に颯爽と退社できます。華金です。",
-                item: "映画のチケット",
-                spot: "駅の改札"
-            },
-            {
-                type: "sr",
-                title: "【中吉】有給申請承認",
-                desc: "恐る恐る出した有給申請があっさり通りました。大型連休を錬成しましょう。",
-                item: "旅行雑誌",
-                spot: "自宅のソファ"
-            },
-            {
-                type: "common",
-                title: "【小吉】スタバの差し入れ",
-                desc: "先輩から差し入れがあります。糖分補給で午後の眠気を撃退できます。",
-                item: "新作フラペチーノ",
-                spot: "リフレッシュスペース"
-            },
-            {
-                type: "common",
-                title: "【末吉】会議時間短縮",
-                desc: "2時間の予定だった定例会議が30分で終わりました。浮いた時間は雑談へ。",
-                item: "議事録用ノート",
-                spot: "会議室B"
-            },
-            {
-                type: "bad",
-                title: "【凶】電話対応ラッシュ",
-                desc: "なぜかあなた宛の電話ばかり鳴ります。理不尽なクレーム対応も混ざっています。",
-                item: "保留ボタン",
-                spot: "自席"
-            },
-            {
-                type: "bad",
-                title: "【大凶】休日出勤要請",
-                desc: "金曜夕方に緊急案件発生。「月曜朝イチで」という呪文を聞きます。",
-                item: "最強の栄養ドリンク",
-                spot: "誰もいないオフィス"
-            },
-            {
-                type: "bad",
-                title: "【特異点】同期の退職発表",
-                desc: "「話があるんだけど」と呼び出されました。彼は自由を手に入れるようです。",
-                item: "送別会の案内メール",
-                spot: "居酒屋の個室"
-            }
+        // フォールバック用ローカルデータ（サーバー未接続時に使用）
+        const localFortunes = [
+            { type: "ssr", title: "【SSR】特別ボーナス支給", desc: "評価Sランク確定。税金は忘れましょう。", item: "高級焼肉", spot: "ATM前" },
+            { type: "sr", title: "【大吉】定時退社RTA成功", desc: "華金です。颯爽と退社しましょう。", item: "映画チケット", spot: "駅の改札" },
+            { type: "sr", title: "【中吉】有給申請承認", desc: "大型連休を錬成しましょう。", item: "旅行雑誌", spot: "自宅ソファ" },
+            { type: "common", title: "【小吉】スタバ差し入れ", desc: "糖分補給で眠気を撃退。", item: "新作フラペチーノ", spot: "リフレッシュスペース" },
+            { type: "common", title: "【末吉】会議時間短縮", desc: "浮いた時間は雑談へ。", item: "議事録ノート", spot: "会議室B" },
+            { type: "bad", title: "【凶】電話対応ラッシュ", desc: "理不尽なクレームも混ざっています。", item: "保留ボタン", spot: "自席" },
+            { type: "bad", title: "【大凶】休日出勤要請", desc: "月曜朝イチの呪文。", item: "栄養ドリンク", spot: "無人のオフィス" },
+            { type: "bad", title: "【特異点】同期の退職発表", desc: "彼は自由を手に入れるようです。", item: "送別会案内", spot: "居酒屋個室" }
         ];
 
         const output = document.getElementById('output');
         const btn = document.getElementById('drawBtn');
+        const usernameInput = document.getElementById('username');
+        const serverStatus = document.getElementById('serverStatus');
         let isProcessing = false;
 
-        function drawFortune() {
+        async function drawFortune() {
             if (isProcessing) return;
             isProcessing = true;
             btn.disabled = true;
             btn.innerText = "処理中...";
+            
+            // 入力された名前を取得
+            const username = usernameInput.value.trim();
 
             // ウィンドウをリセット
             output.innerHTML = '';
             
             const logs = [
-                "未読メールを確認中...",
+                "認証情報を確認中...",
+                username ? `社員名: ${username} を認識...` : "ゲストユーザーとしてログイン...",
                 "カレンダーを同期中...",
-                "コーヒーを準備中...",
-                "朝会に参加中...",
                 "業務モード: ON"
             ];
 
+            // ログ表示アニメーション
             let logIndex = 0;
-
-            const logInterval = setInterval(() => {
+            const logInterval = setInterval(async () => {
                 if (logIndex < logs.length) {
                     addLog(logs[logIndex]);
                     logIndex++;
                 } else {
                     clearInterval(logInterval);
-                    showResult();
+                    // ログ表示後に結果取得へ
+                    await fetchAndShowResult(username);
                 }
-            }, 600);
+            }, 500);
         }
 
         function addLog(text) {
@@ -287,27 +283,76 @@
             output.scrollTop = output.scrollHeight;
         }
 
-        function showResult() {
-            const result = fortunes[Math.floor(Math.random() * fortunes.length)];
+        // サーバー通信と結果表示ロジック
+        async function fetchAndShowResult(username) {
+            let resultData;
+            let processTime;
+            let isServer = false;
 
+            try {
+                // ローカルサーバーへ問い合わせ（Canvasプレビューでは失敗します）
+                const response = await fetch('http://localhost:5000/api/fortune', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: username })
+                });
+
+                if (!response.ok) throw new Error('Server Error');
+                
+                const data = await response.json();
+                resultData = data.result;
+                processTime = data.process_time;
+                isServer = true;
+                addLog("Successfully connected to Python Backend.");
+
+            } catch (error) {
+                // サーバー通信失敗時はローカルロジック（フォールバック）
+                addLog("Server Connection Failed. Switching to Standalone Mode.");
+                // 名前がある場合はJS側でも簡易的な固定ロジックを試みる（日付シードはJSのみだと複雑なので簡易ハッシュ）
+                if (username) {
+                    const today = new Date().toDateString();
+                    const pseudoSeed = stringToHash(today + username);
+                    resultData = localFortunes[Math.abs(pseudoSeed) % localFortunes.length];
+                } else {
+                    resultData = localFortunes[Math.floor(Math.random() * localFortunes.length)];
+                }
+                processTime = (Math.random()).toFixed(2);
+            }
+
+            // 結果表示
             setTimeout(() => {
                 const resultCard = document.createElement('div');
-                resultCard.className = `result-card ${result.type}`;
+                resultCard.className = `result-card ${resultData.type}`;
                 resultCard.innerHTML = `
-                    <span class="result-title">${result.title}</span>
-                    <div class="result-detail"><span class="label">状況:</span> ${result.desc}</div>
-                    <div class="result-detail"><span class="label">アイテム:</span> ${result.item}</div>
-                    <div class="result-detail"><span class="label">スポット:</span> ${result.spot}</div>
-                    <div style="margin-top:15px; font-size: 0.8rem; color: #666; text-align: right;">処理完了: ${new Date().toLocaleTimeString()}</div>
+                    <span class="result-title">${resultData.title}</span>
+                    <div class="result-detail"><span class="label">状況:</span> ${resultData.desc}</div>
+                    <div class="result-detail"><span class="label">アイテム:</span> ${resultData.item}</div>
+                    <div class="result-detail"><span class="label">スポット:</span> ${resultData.spot}</div>
+                    <div style="margin-top:15px; font-size: 0.8rem; color: #666; text-align: right;">
+                        処理完了: ${processTime}s <br>
+                        Source: ${isServer ? 'Python Server' : 'Local Browser (JS)'}
+                    </div>
                 `;
                 output.appendChild(resultCard);
                 output.scrollTop = output.scrollHeight;
 
-                // ボタン復帰
                 btn.disabled = false;
                 btn.innerText = '翌日出勤 (Retry)';
+                serverStatus.innerText = `Mode: ${isServer ? 'Python Backend' : 'Standalone (Demo)'}`;
                 isProcessing = false;
-            }, 600);
+            }, 400);
+        }
+
+        // 簡易ハッシュ関数（JS側での結果固定用）
+        function stringToHash(string) {
+            let hash = 0;
+            if (string.length === 0) return hash;
+            for (let i = 0; i < string.length; i++) {
+                const char = string.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash;
         }
     </script>
 </body>
