@@ -1,274 +1,281 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Terminal, Cpu, ShieldAlert, Sparkles, Wifi, Bug, RefreshCw, Share2, Code2, Zap } from 'lucide-react';
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>エンジニア専用デバッグみくじ</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #58a6ff;
+            --accent-color: #238636;
+            --danger-color: #da3633;
+            --border-color: #30363d;
+        }
 
-// 運勢データの定義（ここを書き換えるだけでオリジナリティが出せます）
-const FORTUNE_DATABASE = [
-  {
-    id: 'SSR',
-    rank: '大吉',
-    description: 'デプロイ一発成功。バグは自然消滅する。コードレビューは絶賛の嵐。',
-    luckyItem: '高級メカニカルキーボード',
-    color: 'text-yellow-400',
-    borderColor: 'border-yellow-400',
-    shadow: 'shadow-yellow-400/50',
-    icon: <Sparkles className="w-12 h-12 text-yellow-400 animate-pulse" />
-  },
-  {
-    id: 'SR',
-    rank: '中吉',
-    description: 'あなたのプルリクは瞬時にマージされる。進捗が驚くほど出る一日。',
-    luckyItem: 'カフェイン多めのエナドリ',
-    color: 'text-cyan-400',
-    borderColor: 'border-cyan-400',
-    shadow: 'shadow-cyan-400/50',
-    icon: <Zap className="w-12 h-12 text-cyan-400" />
-  },
-  {
-    id: 'R',
-    rank: '小吉',
-    description: '可もなく不可もなく、平和なログが流れる。定時退社が視野に入る。',
-    luckyItem: 'ブルーライトカット眼鏡',
-    color: 'text-green-400',
-    borderColor: 'border-green-400',
-    shadow: 'shadow-green-400/50',
-    icon: <Terminal className="w-12 h-12 text-green-400" />
-  },
-  {
-    id: 'N',
-    rank: '吉',
-    description: '動くけど、なぜ動くか分からないコードが生まれる予感。コメントをしっかり書こう。',
-    luckyItem: 'ラバーダック（説明用）',
-    color: 'text-gray-400',
-    borderColor: 'border-gray-400',
-    shadow: 'shadow-gray-400/50',
-    icon: <Code2 className="w-12 h-12 text-gray-400" />
-  },
-  {
-    id: 'WARN',
-    rank: '凶',
-    description: 'マージコンフリクトの気配。同僚とのコミュニケーションパスを確保せよ。',
-    luckyItem: '癒やしの猫動画',
-    color: 'text-orange-500',
-    borderColor: 'border-orange-500',
-    shadow: 'shadow-orange-500/50',
-    icon: <ShieldAlert className="w-12 h-12 text-orange-500" />
-  },
-  {
-    id: 'FATAL',
-    rank: '大凶',
-    description: '本番環境で予期せぬエラー発生。今日は何も触らず、布団サーバーにアクセスして眠るのが吉。',
-    luckyItem: '有給休暇申請書',
-    color: 'text-red-600',
-    borderColor: 'border-red-600',
-    shadow: 'shadow-red-600/50',
-    icon: <Bug className="w-12 h-12 text-red-600 animate-bounce" />
-  }
-];
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
 
-export default function App() {
-  const [gameState, setGameState] = useState('IDLE'); // IDLE, HACKING, RESULT
-  const [fortune, setFortune] = useState(null);
-  const [displayText, setDisplayText] = useState('');
-  const [logText, setLogText] = useState([]);
-  
-  // マトリックス風のエフェクト用
-  const canvasRef = useRef(null);
+        .container {
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            background-color: #161b22;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            text-align: center;
+        }
 
-  // ログを追加する関数
-  const addLog = (text) => {
-    setLogText(prev => [...prev.slice(-4), `> ${text}`]);
-  };
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
 
-  const startOmikuji = () => {
-    if (gameState === 'Hacking') return;
-    
-    setGameState('HACKING');
-    setFortune(null);
-    setLogText([]);
-    addLog('Establishing secure connection...');
-    
-    let steps = 0;
-    const maxSteps = 15;
-    
-    const interval = setInterval(() => {
-      steps++;
-      
-      // ランダムな文字列を表示して「解析中」感を出す
-      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*';
-      let randomStr = '';
-      for(let i=0; i<8; i++) {
-        randomStr += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      setDisplayText(randomStr);
-      
-      if (steps === 3) addLog('Bypassing firewalls...');
-      if (steps === 8) addLog('Decrypting destiny packets...');
-      if (steps === 12) addLog('Rendering future context...');
+        .terminal-window {
+            background-color: #000;
+            border: 1px solid #333;
+            padding: 15px;
+            border-radius: 4px;
+            min-height: 200px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-size: 0.9rem;
+            overflow-y: auto;
+            color: #ccc;
+        }
 
-      if (steps >= maxSteps) {
-        clearInterval(interval);
-        const result = FORTUNE_DATABASE[Math.floor(Math.random() * FORTUNE_DATABASE.length)];
-        setFortune(result);
-        setGameState('RESULT');
-        addLog(`Analysis complete: ${result.id}`);
-      }
-    }, 100);
-  };
+        .prompt {
+            color: #2ea043;
+            margin-right: 5px;
+        }
 
-  const copyResult = () => {
-    if (!fortune) return;
-    const text = `【Cyber Omikuji Result】\nRank: ${fortune.rank}\nMsg: ${fortune.description}\nItem: ${fortune.luckyItem}\n#CyberOmikuji`;
-    navigator.clipboard.writeText(text);
-    addLog('Result copied to clipboard.');
-  };
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: #ccc;
+            animation: blink 1s infinite;
+        }
 
-  // 背景のグリッドアニメーション用スタイル
-  useEffect(() => {
-    // 簡易的な背景アニメーション（重くならないようにCSSのみで制御する方針）
-  }, []);
+        @keyframes blink {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
 
-  return (
-    <div className="min-h-screen bg-slate-900 text-slate-200 font-mono flex flex-col items-center justify-center p-4 overflow-hidden relative selection:bg-cyan-500 selection:text-black">
-      {/* 背景の装飾 */}
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(18,24,27,0.8)_2px,transparent_2px),linear-gradient(90deg,rgba(18,24,27,0.8)_2px,transparent_2px)] bg-[size:40px_40px] opacity-20 pointer-events-none"></div>
-      <div className="absolute inset-0 bg-radial-gradient(circle_at_center, transparent 0%, #0f172a 100%) pointer-events-none"></div>
+        button {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: 1px solid rgba(240,246,252,0.1);
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background-color 0.2s;
+            width: 100%;
+        }
 
-      {/* メインコンテナ */}
-      <div className={`relative z-10 w-full max-w-md transition-all duration-500 ${gameState === 'RESULT' ? 'scale-100' : 'scale-95'}`}>
+        button:hover {
+            background-color: #2ea043;
+        }
+
+        button:disabled {
+            background-color: #333;
+            cursor: not-allowed;
+        }
+
+        /* 結果のスタイル */
+        .result-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin: 10px 0;
+            display: block;
+        }
+        .ssr { color: #e3b341; text-shadow: 0 0 5px #e3b341; } /* Super Super Rare */
+        .sr { color: #58a6ff; }
+        .common { color: #ccc; }
+        .bad { color: #da3633; }
         
-        {/* ヘッダーエリア */}
-        <div className="mb-8 text-center space-y-2">
-          <div className="inline-flex items-center justify-center gap-2 px-3 py-1 rounded-full bg-cyan-950/50 border border-cyan-500/30 text-cyan-400 text-xs tracking-widest">
-            <Wifi size={14} className="animate-pulse" />
-            <span>SYSTEM ONLINE</span>
-          </div>
-          <h1 className="text-4xl font-bold tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)]">
-            CYBER OMIKUJI
-          </h1>
-          <p className="text-slate-500 text-sm">v.2.0.24 // Destiny Protocol</p>
+        .result-detail {
+            color: #8b949e;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>&lt;Dev-Mikuji /&gt;</h1>
+        <p>バグ退散祈願。今日のデプロイ運は？</p>
+
+        <div class="terminal-window" id="output">
+            <div><span class="prompt">$</span> ready to commit...</div>
+            <span class="cursor"></span>
         </div>
 
-        {/* メインカード */}
-        <div className="bg-slate-800/50 backdrop-blur-md border border-slate-700 rounded-xl p-6 shadow-2xl relative overflow-hidden group">
-          
-          {/* スキャンラインエフェクト */}
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-cyan-400/5 to-transparent h-2 w-full animate-scan pointer-events-none"></div>
-
-          {gameState === 'IDLE' && (
-            <div className="flex flex-col items-center py-12 space-y-6">
-              <div className="relative">
-                <div className="absolute inset-0 bg-cyan-500 blur-xl opacity-20 animate-pulse"></div>
-                <Cpu size={80} className="text-slate-300 relative z-10" />
-              </div>
-              <p className="text-center text-slate-400">
-                アクセスを検知。<br/>運命の解析を開始しますか？
-              </p>
-              <button 
-                onClick={startOmikuji}
-                className="group relative px-8 py-3 bg-cyan-600 hover:bg-cyan-500 text-white font-bold tracking-widest transition-all duration-300 hover:shadow-[0_0_20px_rgba(6,182,212,0.6)] clip-path-polygon"
-                style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%)' }}
-              >
-                INITIALIZE
-                <span className="absolute inset-0 border border-white/20 hover:border-white/50" style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%)' }}></span>
-              </button>
-            </div>
-          )}
-
-          {gameState === 'HACKING' && (
-            <div className="flex flex-col items-center py-12 space-y-6">
-              <div className="text-4xl font-bold text-cyan-400 font-mono animate-pulse">
-                {displayText}
-              </div>
-              <div className="w-full h-2 bg-slate-700 rounded-full overflow-hidden">
-                <div className="h-full bg-cyan-500 animate-progress"></div>
-              </div>
-              <div className="font-mono text-xs text-green-400 text-left w-full pl-4 space-y-1 opacity-80 h-24 overflow-hidden border-l-2 border-green-500/30 bg-black/20 p-2">
-                {logText.map((log, i) => (
-                  <div key={i}>{log}</div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {gameState === 'RESULT' && fortune && (
-            <div className="flex flex-col items-center space-y-6 animate-fadeIn">
-              <div className={`p-4 rounded-full border-2 ${fortune.borderColor} bg-slate-900/80 ${fortune.shadow} shadow-[0_0_30px_rgba(0,0,0,0.5)]`}>
-                {fortune.icon}
-              </div>
-              
-              <div className="text-center space-y-2">
-                <h2 className={`text-3xl font-black ${fortune.color} drop-shadow-lg tracking-wider`}>
-                  {fortune.rank}
-                </h2>
-                <div className="h-px w-20 bg-slate-600 mx-auto my-4"></div>
-                <p className="text-lg text-slate-200 font-medium leading-relaxed min-h-[5rem] flex items-center justify-center">
-                  {fortune.description}
-                </p>
-              </div>
-
-              <div className="w-full bg-slate-900/50 rounded-lg p-3 border border-slate-700 flex items-center gap-3">
-                <div className="bg-slate-700 p-2 rounded">
-                  <Sparkles size={16} className="text-yellow-400" />
-                </div>
-                <div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Lucky Artifact</div>
-                  <div className="text-sm font-bold text-slate-300">{fortune.luckyItem}</div>
-                </div>
-              </div>
-
-              <div className="flex gap-3 w-full pt-4">
-                <button 
-                  onClick={startOmikuji}
-                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded transition-colors"
-                >
-                  <RefreshCw size={16} />
-                  <span>RETRY</span>
-                </button>
-                <button 
-                  onClick={copyResult}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 border ${fortune.borderColor} ${fortune.color} hover:bg-slate-700/50 rounded transition-all`}
-                >
-                  <Share2 size={16} />
-                  <span>SHARE</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* フッター */}
-        <div className="mt-8 text-center opacity-40 hover:opacity-100 transition-opacity">
-          <p className="text-[10px] text-slate-400">
-            © 2024 CYBER-SHRINE INC. // NO WARRANTY IMPLIED
-          </p>
-        </div>
-      </div>
-
-      {/* グローバルスタイル（アニメーション定義） */}
-      <style jsx global>{`
-        @keyframes scan {
-          0% { transform: translateY(-100%); opacity: 0; }
-          50% { opacity: 1; }
-          100% { transform: translateY(500%); opacity: 0; }
-        }
-        .animate-scan {
-          animation: scan 3s linear infinite;
-        }
-        @keyframes progress {
-          0% { width: 0%; }
-          100% { width: 100%; }
-        }
-        .animate-progress {
-          animation: progress 1.5s ease-out forwards;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .animate-fadeIn {
-          animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-      `}</style>
+        <button id="drawBtn" onclick="drawFortune()">git commit -m "draw fortune"</button>
     </div>
-  );
-}
+
+    <script>
+        // おみくじデータ（ネタ要素満載）
+        const fortunes = [
+            {
+                type: "ssr",
+                title: "【SSR】神コミット",
+                desc: "一発でビルドが通る。テストも全グリーン。今日はあなたが神です。",
+                item: "高級メカニカルキーボード",
+                lang: "Rust (安全第一)"
+            },
+            {
+                type: "sr",
+                title: "【大吉】LGTM",
+                desc: "Pull Requestが秒速で承認されます。「完璧だね」と褒められるでしょう。",
+                item: "ノイズキャンセリングヘッドホン",
+                lang: "TypeScript"
+            },
+            {
+                type: "sr",
+                title: "【中吉】Stack Overflowに答えあり",
+                desc: "詰まっていたエラーの解決策が、検索の1件目で見つかります。",
+                item: "エナジードリンク",
+                lang: "Python"
+            },
+            {
+                type: "common",
+                title: "【小吉】要件定義変更",
+                desc: "「やっぱりここ変えて」と言われますが、軽微な修正で済みそうです。",
+                item: "ブルーライトカットメガネ",
+                lang: "JavaScript"
+            },
+            {
+                type: "common",
+                title: "【末吉】タイポの神",
+                desc: "エラーの原因はスペルミスです。30分探せば見つかるでしょう。",
+                item: "目薬",
+                lang: "HTML/CSS"
+            },
+            {
+                type: "bad",
+                title: "【凶】マージコンフリクト",
+                desc: "同僚と同じファイルをいじってしまいました。手動解決の苦行が待っています。",
+                item: "鎮痛剤",
+                lang: "C++ (ポインタ地獄)"
+            },
+            {
+                type: "bad",
+                title: "【大凶】金曜夕方のデプロイ",
+                desc: "定時直前のリリースでサーバーが落ちます。週末は潰れるでしょう。",
+                item: "寝袋",
+                lang: "Assembly"
+            },
+            {
+                type: "bad",
+                title: "【特異点】全角スペースの呪い",
+                desc: "見た目は正しいコードなのに動きません。見えない文字がそこにいます。",
+                item: "テキストエディタの「制御文字を表示」機能",
+                lang: "Whitespace"
+            }
+        ];
+
+        const output = document.getElementById('output');
+        const btn = document.getElementById('drawBtn');
+        let isProcessing = false;
+
+        function typeWriter(text, element, callback) {
+            let i = 0;
+            element.innerHTML = '<span class="prompt">$</span> ';
+            const interval = setInterval(() => {
+                element.innerHTML += text.charAt(i);
+                i++;
+                if (i > text.length - 1) {
+                    clearInterval(interval);
+                    if (callback) callback();
+                }
+            }, 30); // タイピング速度
+        }
+
+        function drawFortune() {
+            if (isProcessing) return;
+            isProcessing = true;
+            btn.disabled = true;
+            btn.innerText = "Building...";
+
+            // ターミナルをリセット
+            output.innerHTML = '';
+            
+            // ログ風の演出
+            const logElement = document.createElement('div');
+            output.appendChild(logElement);
+            
+            const logs = [
+                "npm install luck...",
+                "resolving dependencies...",
+                "found 0 vulnerabilities...",
+                "compiling destiny...",
+                "build success!"
+            ];
+
+            let logIndex = 0;
+
+            const logInterval = setInterval(() => {
+                if (logIndex < logs.length) {
+                    const p = document.createElement('div');
+                    p.style.color = '#8b949e';
+                    p.innerText = `> ${logs[logIndex]}`;
+                    output.appendChild(p);
+                    output.scrollTop = output.scrollHeight; // 自動スクロール
+                    logIndex++;
+                } else {
+                    clearInterval(logInterval);
+                    showResult();
+                }
+            }, 500);
+        }
+
+        function showResult() {
+            // おみくじロジック（ランダム）
+            const result = fortunes[Math.floor(Math.random() * fortunes.length)];
+
+            setTimeout(() => {
+                const resultDiv = document.createElement('div');
+                resultDiv.style.marginTop = "20px";
+                resultDiv.innerHTML = `
+                    <span class="result-title ${result.type}">${result.title}</span>
+                    <div class="result-detail">Status: ${result.desc}</div>
+                    <div class="result-detail">Lucky Item: ${result.item}</div>
+                    <div class="result-detail">Lucky Lang: ${result.lang}</div>
+                    <div style="margin-top:15px; color:#238636;">> Done in ${Math.random().toFixed(2)}s.</div>
+                `;
+                output.appendChild(resultDiv);
+                output.scrollTop = output.scrollHeight;
+                
+                // カーソル再表示
+                const cursor = document.createElement('span');
+                cursor.className = 'cursor';
+                output.appendChild(cursor);
+
+                // ボタン復帰
+                btn.disabled = false;
+                btn.innerText = 'git commit -m "retry"';
+                isProcessing = false;
+            }, 500);
+        }
+    </script>
+</body>
+</html>
