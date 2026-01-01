@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>大学生専用 単位みくじ</title>
+    <title>新社会人専用 サバイバルみくじ</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -121,75 +121,75 @@
 <body>
 
     <div class="container">
-        <h1>&lt;Campus-Mikuji /&gt;</h1>
-        <p>単位取得祈願。今日の講義運は？</p>
+        <h1>&lt;Biz-Mikuji /&gt;</h1>
+        <p>定時退社祈願。今日の業務運は？</p>
 
         <div class="terminal-window" id="output">
-            <div><span class="prompt">$</span> ready to study...</div>
+            <div><span class="prompt">$</span> ready to work...</div>
             <span class="cursor"></span>
         </div>
 
-        <button id="drawBtn" onclick="drawFortune()">submit assignment</button>
+        <button id="drawBtn" onclick="drawFortune()">clock in</button>
     </div>
 
     <script>
-        // おみくじデータ（大学生向けネタ）
+        // おみくじデータ（新社会人向けネタ）
         const fortunes = [
             {
                 type: "ssr",
-                title: "【SSR】フル単達成",
-                desc: "奇跡の全単位取得。GPAも爆上がり。奨学金も狙えるレベルです。",
-                item: "教授からの推薦状",
-                spot: "研究室"
+                title: "【SSR】特別ボーナス",
+                desc: "評価Sランク確定。予想以上の額が振り込まれます。税金に気をつけて。",
+                item: "高級焼肉店の予約",
+                spot: "ATM前"
             },
             {
                 type: "sr",
-                title: "【大吉】1限休講",
-                desc: "起きたら休講通知が来ていました。二度寝の権利を獲得しました。",
-                item: "暖かい布団",
-                spot: "自宅"
+                title: "【大吉】定時退社",
+                desc: "タスクが奇跡的に片付き、定時に颯爽と退社できます。華金です。",
+                item: "映画のチケット",
+                spot: "駅の改札"
             },
             {
                 type: "sr",
-                title: "【中吉】過去問入手",
-                desc: "先輩から秘伝のUSBメモリを継承。テスト勉強時間が8割削減されます。",
-                item: "先輩のUSBメモリ",
-                spot: "部室・サークル部屋"
+                title: "【中吉】有給承認",
+                desc: "恐る恐る出した有給申請があっさり通りました。連休ゲットです。",
+                item: "旅行雑誌",
+                spot: "自宅のソファ"
             },
             {
                 type: "common",
-                title: "【小吉】代返成功",
-                desc: "友人が出席カードを出してくれました。今度ランチを奢りましょう。",
-                item: "学食のカレー",
-                spot: "食堂"
+                title: "【小吉】差し入れゲット",
+                desc: "先輩からスタバの差し入れがあります。糖分補給で午後も乗り切れます。",
+                item: "限定フラペチーノ",
+                spot: "リフレッシュスペース"
             },
             {
                 type: "common",
-                title: "【末吉】90分睡眠",
-                desc: "講義中、最高に気持ちよく眠れました。内容は全く覚えていません。",
-                item: "よだれ付きのノート",
-                spot: "教室の一番後ろの席"
+                title: "【末吉】会議短縮",
+                desc: "2時間の予定だった定例会議が30分で終わりました。浮いた時間は雑談へ。",
+                item: "議事録用ノート",
+                spot: "会議室B"
             },
             {
                 type: "bad",
-                title: "【凶】再履修の予感",
-                desc: "テストの手応えがありません。「不可」の文字が脳裏をよぎります。",
-                item: "履修登録要項",
-                spot: "教務課"
+                title: "【凶】電話対応ラッシュ",
+                desc: "なぜかあなた宛の電話ばかり鳴ります。クレーム対応も混ざっています。",
+                item: "保留ボタン",
+                spot: "自席"
             },
             {
                 type: "bad",
-                title: "【大凶】提出期限切れ",
-                desc: "レポートの期限は昨日でした。教授の慈悲にすがるしかありません。",
-                item: "反省文と菓子折り",
-                spot: "教授室"
+                title: "【大凶】休日出勤",
+                desc: "金曜夕方に緊急案件発生。「月曜朝イチで」という呪文を聞きます。",
+                item: "栄養ドリンク",
+                spot: "誰もいないオフィス"
             },
             {
                 type: "bad",
-                title: "【特異点】謎の単位認定",
-                desc: "出た記憶のない授業の単位が取れていました。深く考えてはいけません。",
-                item: "成績通知書",
-                spot: "異次元"
+                title: "【特異点】同期の退職",
+                desc: "「話があるんだけど」と呼び出されました。彼は自由を手に入れるようです。",
+                item: "送別会の案内",
+                spot: "居酒屋の個室"
             }
         ];
 
@@ -201,17 +201,17 @@
             if (isProcessing) return;
             isProcessing = true;
             btn.disabled = true;
-            btn.innerText = "Submitting...";
+            btn.innerText = "Working...";
 
             // ターミナルをリセット
             output.innerHTML = '';
             
             const logs = [
-                "searching for textbooks...",
-                "checking attendance rate...",
-                "copying friend's notes...",
-                "calculating GPA...",
-                "submission complete!"
+                "checking unread emails...",
+                "syncing google calendar...",
+                "preparing coffee...",
+                "joining morning meeting...",
+                "work mode: ON"
             ];
 
             let logIndex = 0;
@@ -254,7 +254,7 @@
 
                 // ボタン復帰
                 btn.disabled = false;
-                btn.innerText = 're-submit assignment';
+                btn.innerText = 'clock in tomorrow';
                 isProcessing = false;
             }, 500);
         }
