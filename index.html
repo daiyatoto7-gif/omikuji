@@ -6,17 +6,22 @@
     <title>新社会人専用 サバイバルみくじ</title>
     <style>
         :root {
-            --bg-color: #0d1117;
-            --text-color: #58a6ff;
-            --accent-color: #238636;
-            --danger-color: #da3633;
-            --border-color: #30363d;
+            /* ビジネスライクなダークモード配色 */
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --sub-text: #a0a0a0;
+            --accent-color: #4dabf7; /* 知的な青 */
+            --accent-hover: #339af0;
+            --border-color: #333333;
+            --window-bg: #2d2d2d;
         }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: 'Courier New', Courier, monospace;
+            /* 等幅フォント(Courier)をやめ、読みやすいゴシック体へ変更 */
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -29,107 +34,170 @@
 
         .container {
             border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border-radius: 12px; /* 角丸を増やしてアプリっぽく */
             padding: 2rem;
             max-width: 500px;
             width: 100%;
-            background-color: #161b22;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
             text-align: center;
         }
 
         h1 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1rem;
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
         }
 
-        .terminal-window {
-            background-color: #000;
-            border: 1px solid #333;
-            padding: 15px;
-            border-radius: 4px;
-            min-height: 200px;
-            margin-bottom: 20px;
-            text-align: left;
+        .subtitle {
+            color: var(--sub-text);
             font-size: 0.9rem;
-            overflow-y: auto;
-            color: #ccc;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
         }
 
-        .prompt {
-            color: #2ea043;
-            margin-right: 5px;
+        /* ターミナルから「業務ログウィンドウ」へ変更 */
+        .system-window {
+            background-color: var(--window-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 220px;
+            margin-bottom: 25px;
+            text-align: left;
+            font-size: 0.95rem;
+            overflow-y: auto;
+            color: var(--text-color);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-item {
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .log-item::before {
+            content: "●";
+            color: var(--accent-color);
+            font-size: 0.6em;
+            margin-right: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .cursor {
             display: inline-block;
-            width: 8px;
-            height: 15px;
-            background-color: #ccc;
+            width: 2px;
+            height: 1.2em;
+            background-color: var(--accent-color);
             animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 5px;
         }
 
         @keyframes blink {
-            0% { opacity: 0; }
-            50% { opacity: 1; }
-            100% { opacity: 0; }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
         button {
             background-color: var(--accent-color);
             color: #fff;
-            border: 1px solid rgba(240,246,252,0.1);
-            padding: 10px 20px;
+            border: none;
+            padding: 14px 24px;
             font-size: 1rem;
-            border-radius: 6px;
+            font-weight: bold;
+            border-radius: 8px;
             cursor: pointer;
             font-family: inherit;
-            transition: background-color 0.2s;
+            transition: all 0.2s;
             width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
         button:hover {
-            background-color: #2ea043;
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
         }
 
         button:disabled {
-            background-color: #333;
+            background-color: #444;
+            color: #888;
             cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
-        /* 結果のスタイル */
+        /* 結果カードのスタイル */
+        .result-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            border-left: 4px solid;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
         .result-title {
-            font-size: 1.5em;
+            font-size: 1.4em;
             font-weight: bold;
-            margin: 10px 0;
+            margin-bottom: 10px;
             display: block;
         }
-        .ssr { color: #e3b341; text-shadow: 0 0 5px #e3b341; }
-        .sr { color: #58a6ff; }
-        .common { color: #ccc; }
-        .bad { color: #da3633; }
+
+        /* 色の定義 */
+        .ssr { border-color: #ffd700; color: #ffd700; }
+        .sr { border-color: #4dabf7; color: #4dabf7; }
+        .common { border-color: #ced4da; color: #ced4da; }
+        .bad { border-color: #ff6b6b; color: #ff6b6b; }
         
         .result-detail {
-            color: #8b949e;
-            font-size: 0.85rem;
-            margin-top: 5px;
+            color: #b0b0b0;
+            font-size: 0.9rem;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        
+        .label {
+            display: inline-block;
+            width: 80px;
+            font-weight: bold;
+            color: #888;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1>&lt;Biz-Mikuji /&gt;</h1>
-        <p>定時退社祈願。今日の業務運は？</p>
+        <h1>Biz-Mikuji App</h1>
+        <div class="subtitle">新社会人のための業務運勢診断システム</div>
 
-        <div class="terminal-window" id="output">
-            <div><span class="prompt">$</span> ready to work...</div>
-            <span class="cursor"></span>
+        <div class="system-window" id="output">
+            <div class="log-item">System ready...</div>
+            <div class="log-item">Waiting for user action...</div>
         </div>
 
-        <button id="drawBtn" onclick="drawFortune()">clock in</button>
+        <button id="drawBtn" onclick="drawFortune()">出勤打刻 (Start Work)</button>
     </div>
 
     <script>
@@ -137,35 +205,35 @@
         const fortunes = [
             {
                 type: "ssr",
-                title: "【SSR】特別ボーナス",
-                desc: "評価Sランク確定。予想以上の額が振り込まれます。税金に気をつけて。",
+                title: "【SSR】特別ボーナス支給",
+                desc: "評価Sランク確定。予想以上の額が振り込まれます。税金のことは一旦忘れましょう。",
                 item: "高級焼肉店の予約",
                 spot: "ATM前"
             },
             {
                 type: "sr",
-                title: "【大吉】定時退社",
+                title: "【大吉】定時退社RTA成功",
                 desc: "タスクが奇跡的に片付き、定時に颯爽と退社できます。華金です。",
                 item: "映画のチケット",
                 spot: "駅の改札"
             },
             {
                 type: "sr",
-                title: "【中吉】有給承認",
-                desc: "恐る恐る出した有給申請があっさり通りました。連休ゲットです。",
+                title: "【中吉】有給申請承認",
+                desc: "恐る恐る出した有給申請があっさり通りました。大型連休を錬成しましょう。",
                 item: "旅行雑誌",
                 spot: "自宅のソファ"
             },
             {
                 type: "common",
-                title: "【小吉】差し入れゲット",
-                desc: "先輩からスタバの差し入れがあります。糖分補給で午後も乗り切れます。",
-                item: "限定フラペチーノ",
+                title: "【小吉】スタバの差し入れ",
+                desc: "先輩から差し入れがあります。糖分補給で午後の眠気を撃退できます。",
+                item: "新作フラペチーノ",
                 spot: "リフレッシュスペース"
             },
             {
                 type: "common",
-                title: "【末吉】会議短縮",
+                title: "【末吉】会議時間短縮",
                 desc: "2時間の予定だった定例会議が30分で終わりました。浮いた時間は雑談へ。",
                 item: "議事録用ノート",
                 spot: "会議室B"
@@ -173,22 +241,22 @@
             {
                 type: "bad",
                 title: "【凶】電話対応ラッシュ",
-                desc: "なぜかあなた宛の電話ばかり鳴ります。クレーム対応も混ざっています。",
+                desc: "なぜかあなた宛の電話ばかり鳴ります。理不尽なクレーム対応も混ざっています。",
                 item: "保留ボタン",
                 spot: "自席"
             },
             {
                 type: "bad",
-                title: "【大凶】休日出勤",
+                title: "【大凶】休日出勤要請",
                 desc: "金曜夕方に緊急案件発生。「月曜朝イチで」という呪文を聞きます。",
-                item: "栄養ドリンク",
+                item: "最強の栄養ドリンク",
                 spot: "誰もいないオフィス"
             },
             {
                 type: "bad",
-                title: "【特異点】同期の退職",
+                title: "【特異点】同期の退職発表",
                 desc: "「話があるんだけど」と呼び出されました。彼は自由を手に入れるようです。",
-                item: "送別会の案内",
+                item: "送別会の案内メール",
                 spot: "居酒屋の個室"
             }
         ];
@@ -201,62 +269,390 @@
             if (isProcessing) return;
             isProcessing = true;
             btn.disabled = true;
-            btn.innerText = "Working...";
+            btn.innerText = "処理中...";
 
-            // ターミナルをリセット
+            // ウィンドウをリセット
             output.innerHTML = '';
             
             const logs = [
-                "checking unread emails...",
-                "syncing google calendar...",
-                "preparing coffee...",
-                "joining morning meeting...",
-                "work mode: ON"
+                "未読メールを確認中...",
+                "カレンダーを同期中...",
+                "コーヒーを準備中...",
+                "朝会に参加中...",
+                "業務モード: ON"
             ];
 
             let logIndex = 0;
 
             const logInterval = setInterval(() => {
                 if (logIndex < logs.length) {
-                    const p = document.createElement('div');
-                    p.style.color = '#8b949e';
-                    p.innerText = `> ${logs[logIndex]}`;
-                    output.appendChild(p);
-                    output.scrollTop = output.scrollHeight; // 自動スクロール
+                    addLog(logs[logIndex]);
                     logIndex++;
                 } else {
                     clearInterval(logInterval);
                     showResult();
                 }
-            }, 500);
+            }, 600); // 少しゆっくりにしてチャットっぽく
+        }
+
+        function addLog(text) {
+            const div = document.createElement('div');
+            div.className = 'log-item';
+            div.innerText = text;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
         }
 
         function showResult() {
             const result = fortunes[Math.floor(Math.random() * fortunes.length)];
 
             setTimeout(() => {
-                const resultDiv = document.createElement('div');
-                resultDiv.style.marginTop = "20px";
-                resultDiv.innerHTML = `
-                    <span class="result-title ${result.type}">${result.title}</span>
-                    <div class="result-detail">Status: ${result.desc}</div>
-                    <div class="result-detail">Lucky Item: ${result.item}</div>
-                    <div class="result-detail">Lucky Spot: ${result.spot}</div>
-                    <div style="margin-top:15px; color:#238636;">> Done in ${Math.random().toFixed(2)}s.</div>
+                const resultCard = document.createElement('div');
+                resultCard.className = `result-card ${result.type}`;
+                resultCard.innerHTML = `
+                    <span class="result-title">${result.title}</span>
+                    <div class="result-detail"><span class="label">状況:</span> ${result.desc}</div>
+                    <div class="result-detail"><span class="label">アイテム:</span> ${result.item}</div>
+                    <div class="result-detail"><span class="label">スポット:</span> ${result.spot}</div>
+                    <div style="margin-top:15px; font-size: 0.8rem; color: #666; text-align: right;">処理完了: ${new Date().toLocaleTimeString()}</div>
                 `;
-                output.appendChild(resultDiv);
+                output.appendChild(resultCard);
                 output.scrollTop = output.scrollHeight;
-                
-                // カーソル再表示
-                const cursor = document.createElement('span');
-                cursor.className = 'cursor';
-                output.appendChild(cursor);
 
                 // ボタン復帰
                 btn.disabled = false;
-                btn.innerText = 'clock in tomorrow';
+                btn.innerText = '翌日出勤 (Retry)';
                 isProcessing = false;
-            }, 500);
+            }, 600);
+        }
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>新社会人専用 サバイバルみくじ</title>
+    <style>
+        :root {
+            /* ビジネスライクなダークモード配色 */
+            --bg-color: #121212;
+            --card-bg: #1e1e1e;
+            --text-color: #e0e0e0;
+            --sub-text: #a0a0a0;
+            --accent-color: #4dabf7; /* 知的な青 */
+            --accent-hover: #339af0;
+            --border-color: #333333;
+            --window-bg: #2d2d2d;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            /* 等幅フォント(Courier)をやめ、読みやすいゴシック体へ変更 */
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            border: 1px solid var(--border-color);
+            border-radius: 12px; /* 角丸を増やしてアプリっぽく */
+            padding: 2rem;
+            max-width: 500px;
+            width: 100%;
+            background-color: var(--card-bg);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.6rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        .subtitle {
+            color: var(--sub-text);
+            font-size: 0.9rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        /* ターミナルから「業務ログウィンドウ」へ変更 */
+        .system-window {
+            background-color: var(--window-bg);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            border-radius: 8px;
+            min-height: 220px;
+            margin-bottom: 25px;
+            text-align: left;
+            font-size: 0.95rem;
+            overflow-y: auto;
+            color: var(--text-color);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-item {
+            display: flex;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .log-item::before {
+            content: "●";
+            color: var(--accent-color);
+            font-size: 0.6em;
+            margin-right: 10px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1.2em;
+            background-color: var(--accent-color);
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 5px;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 14px 24px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0,0,0,0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background-color: #444;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* 結果カードのスタイル */
+        .result-card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            border-left: 4px solid;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .result-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* 色の定義 */
+        .ssr { border-color: #ffd700; color: #ffd700; }
+        .sr { border-color: #4dabf7; color: #4dabf7; }
+        .common { border-color: #ced4da; color: #ced4da; }
+        .bad { border-color: #ff6b6b; color: #ff6b6b; }
+        
+        .result-detail {
+            color: #b0b0b0;
+            font-size: 0.9rem;
+            margin-top: 6px;
+            line-height: 1.4;
+        }
+        
+        .label {
+            display: inline-block;
+            width: 80px;
+            font-weight: bold;
+            color: #888;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Biz-Mikuji App</h1>
+        <div class="subtitle">新社会人のための業務運勢診断システム</div>
+
+        <div class="system-window" id="output">
+            <div class="log-item">System ready...</div>
+            <div class="log-item">Waiting for user action...</div>
+        </div>
+
+        <button id="drawBtn" onclick="drawFortune()">出勤打刻 (Start Work)</button>
+    </div>
+
+    <script>
+        // おみくじデータ（新社会人向けネタ）
+        const fortunes = [
+            {
+                type: "ssr",
+                title: "【SSR】特別ボーナス支給",
+                desc: "評価Sランク確定。予想以上の額が振り込まれます。税金のことは一旦忘れましょう。",
+                item: "高級焼肉店の予約",
+                spot: "ATM前"
+            },
+            {
+                type: "sr",
+                title: "【大吉】定時退社RTA成功",
+                desc: "タスクが奇跡的に片付き、定時に颯爽と退社できます。華金です。",
+                item: "映画のチケット",
+                spot: "駅の改札"
+            },
+            {
+                type: "sr",
+                title: "【中吉】有給申請承認",
+                desc: "恐る恐る出した有給申請があっさり通りました。大型連休を錬成しましょう。",
+                item: "旅行雑誌",
+                spot: "自宅のソファ"
+            },
+            {
+                type: "common",
+                title: "【小吉】スタバの差し入れ",
+                desc: "先輩から差し入れがあります。糖分補給で午後の眠気を撃退できます。",
+                item: "新作フラペチーノ",
+                spot: "リフレッシュスペース"
+            },
+            {
+                type: "common",
+                title: "【末吉】会議時間短縮",
+                desc: "2時間の予定だった定例会議が30分で終わりました。浮いた時間は雑談へ。",
+                item: "議事録用ノート",
+                spot: "会議室B"
+            },
+            {
+                type: "bad",
+                title: "【凶】電話対応ラッシュ",
+                desc: "なぜかあなた宛の電話ばかり鳴ります。理不尽なクレーム対応も混ざっています。",
+                item: "保留ボタン",
+                spot: "自席"
+            },
+            {
+                type: "bad",
+                title: "【大凶】休日出勤要請",
+                desc: "金曜夕方に緊急案件発生。「月曜朝イチで」という呪文を聞きます。",
+                item: "最強の栄養ドリンク",
+                spot: "誰もいないオフィス"
+            },
+            {
+                type: "bad",
+                title: "【特異点】同期の退職発表",
+                desc: "「話があるんだけど」と呼び出されました。彼は自由を手に入れるようです。",
+                item: "送別会の案内メール",
+                spot: "居酒屋の個室"
+            }
+        ];
+
+        const output = document.getElementById('output');
+        const btn = document.getElementById('drawBtn');
+        let isProcessing = false;
+
+        function drawFortune() {
+            if (isProcessing) return;
+            isProcessing = true;
+            btn.disabled = true;
+            btn.innerText = "処理中...";
+
+            // ウィンドウをリセット
+            output.innerHTML = '';
+            
+            const logs = [
+                "未読メールを確認中...",
+                "カレンダーを同期中...",
+                "コーヒーを準備中...",
+                "朝会に参加中...",
+                "業務モード: ON"
+            ];
+
+            let logIndex = 0;
+
+            const logInterval = setInterval(() => {
+                if (logIndex < logs.length) {
+                    addLog(logs[logIndex]);
+                    logIndex++;
+                } else {
+                    clearInterval(logInterval);
+                    showResult();
+                }
+            }, 600); // 少しゆっくりにしてチャットっぽく
+        }
+
+        function addLog(text) {
+            const div = document.createElement('div');
+            div.className = 'log-item';
+            div.innerText = text;
+            output.appendChild(div);
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function showResult() {
+            const result = fortunes[Math.floor(Math.random() * fortunes.length)];
+
+            setTimeout(() => {
+                const resultCard = document.createElement('div');
+                resultCard.className = `result-card ${result.type}`;
+                resultCard.innerHTML = `
+                    <span class="result-title">${result.title}</span>
+                    <div class="result-detail"><span class="label">状況:</span> ${result.desc}</div>
+                    <div class="result-detail"><span class="label">アイテム:</span> ${result.item}</div>
+                    <div class="result-detail"><span class="label">スポット:</span> ${result.spot}</div>
+                    <div style="margin-top:15px; font-size: 0.8rem; color: #666; text-align: right;">処理完了: ${new Date().toLocaleTimeString()}</div>
+                `;
+                output.appendChild(resultCard);
+                output.scrollTop = output.scrollHeight;
+
+                // ボタン復帰
+                btn.disabled = false;
+                btn.innerText = '翌日出勤 (Retry)';
+                isProcessing = false;
+            }, 600);
         }
     </script>
 </body>
