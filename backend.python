@@ -1,0 +1,103 @@
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+import random
+import datetime
+import hashlib
+
+app = Flask(__name__)
+# 開発環境用にCORSを許可（HTMLファイルから直接アクセスする場合など）
+CORS(app)
+
+# おみくじデータ（サーバー側で管理）
+FORTUNES = [
+    {
+        "type": "ssr",
+        "title": "【SSR】特別ボーナス支給",
+        "desc": "評価Sランク確定。予想以上の額が振り込まれます。税金のことは一旦忘れましょう。",
+        "item": "高級焼肉店の予約",
+        "spot": "ATM前"
+    },
+    {
+        "type": "sr",
+        "title": "【大吉】定時退社RTA成功",
+        "desc": "タスクが奇跡的に片付き、定時に颯爽と退社できます。華金です。",
+        "item": "映画のチケット",
+        "spot": "駅の改札"
+    },
+    {
+        "type": "sr",
+        "title": "【中吉】有給申請承認",
+        "desc": "恐る恐る出した有給申請があっさり通りました。大型連休を錬成しましょう。",
+        "item": "旅行雑誌",
+        "spot": "自宅のソファ"
+    },
+    {
+        "type": "common",
+        "title": "【小吉】スタバの差し入れ",
+        "desc": "先輩から差し入れがあります。糖分補給で午後の眠気を撃退できます。",
+        "item": "新作フラペチーノ",
+        "spot": "リフレッシュスペース"
+    },
+    {
+        "type": "common",
+        "title": "【末吉】会議時間短縮",
+        "desc": "2時間の予定だった定例会議が30分で終わりました。浮いた時間は雑談へ。",
+        "item": "議事録用ノート",
+        "spot": "会議室B"
+    },
+    {
+        "type": "bad",
+        "title": "【凶】電話対応ラッシュ",
+        "desc": "なぜかあなた宛の電話ばかり鳴ります。理不尽なクレーム対応も混ざっています。",
+        "item": "保留ボタン",
+        "spot": "自席"
+    },
+    {
+        "type": "bad",
+        "title": "【大凶】休日出勤要請",
+        "desc": "金曜夕方に緊急案件発生。「月曜朝イチで」という呪文を聞きます。",
+        "item": "最強の栄養ドリンク",
+        "spot": "誰もいないオフィス"
+    },
+    {
+        "type": "bad",
+        "title": "【特異点】同期の退職発表",
+        "desc": "「話があるんだけど」と呼び出されました。彼は自由を手に入れるようです。",
+        "item": "送別会の案内メール",
+        "spot": "居酒屋の個室"
+    }
+]
+
+@app.route('/api/fortune', methods=['POST'])
+def get_fortune():
+    data = request.get_json()
+    username = data.get('name', '')
+    
+    # 今日の日付を取得
+    today = datetime.date.today().isoformat()
+    
+    if username:
+        # 名前がある場合：日付と名前を組み合わせてシード値を作る
+        # これにより、「同じ名前ならその日は常に同じ運勢」になる（日替わり運勢）
+        seed_str = f"{today}-{username}"
+        # 文字列をハッシュ化して整数に変換し、シードにする
+        seed_int = int(hashlib.md5(seed_str.encode()).hexdigest(), 16)
+        random.seed(seed_int)
+    else:
+        # 名前がない場合は現在時刻でランダム
+        random.seed()
+
+    # 運勢を選出
+    result = random.choice(FORTUNES)
+    
+    # 処理時間風の演出用データ
+    process_time = random.uniform(0.1, 0.8)
+
+    return jsonify({
+        "result": result,
+        "process_time": f"{process_time:.2f}",
+        "server_message": "Result calculated by Python Backend"
+    })
+
+if __name__ == '__main__':
+    app.run(debug=True, port=5000)
