@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>エンジニア専用デバッグみくじ</title>
+    <title>大学生専用 単位みくじ</title>
     <style>
         :root {
             --bg-color: #0d1117;
@@ -106,7 +106,7 @@
             margin: 10px 0;
             display: block;
         }
-        .ssr { color: #e3b341; text-shadow: 0 0 5px #e3b341; } /* Super Super Rare */
+        .ssr { color: #e3b341; text-shadow: 0 0 5px #e3b341; }
         .sr { color: #58a6ff; }
         .common { color: #ccc; }
         .bad { color: #da3633; }
@@ -121,75 +121,75 @@
 <body>
 
     <div class="container">
-        <h1>&lt;Dev-Mikuji /&gt;</h1>
-        <p>バグ退散祈願。今日のデプロイ運は？</p>
+        <h1>&lt;Campus-Mikuji /&gt;</h1>
+        <p>単位取得祈願。今日の講義運は？</p>
 
         <div class="terminal-window" id="output">
-            <div><span class="prompt">$</span> ready to commit...</div>
+            <div><span class="prompt">$</span> ready to study...</div>
             <span class="cursor"></span>
         </div>
 
-        <button id="drawBtn" onclick="drawFortune()">git commit -m "draw fortune"</button>
+        <button id="drawBtn" onclick="drawFortune()">submit assignment</button>
     </div>
 
     <script>
-        // おみくじデータ（ネタ要素満載）
+        // おみくじデータ（大学生向けネタ）
         const fortunes = [
             {
                 type: "ssr",
-                title: "【SSR】神コミット",
-                desc: "一発でビルドが通る。テストも全グリーン。今日はあなたが神です。",
-                item: "高級メカニカルキーボード",
-                lang: "Rust (安全第一)"
+                title: "【SSR】フル単達成",
+                desc: "奇跡の全単位取得。GPAも爆上がり。奨学金も狙えるレベルです。",
+                item: "教授からの推薦状",
+                spot: "研究室"
             },
             {
                 type: "sr",
-                title: "【大吉】LGTM",
-                desc: "Pull Requestが秒速で承認されます。「完璧だね」と褒められるでしょう。",
-                item: "ノイズキャンセリングヘッドホン",
-                lang: "TypeScript"
+                title: "【大吉】1限休講",
+                desc: "起きたら休講通知が来ていました。二度寝の権利を獲得しました。",
+                item: "暖かい布団",
+                spot: "自宅"
             },
             {
                 type: "sr",
-                title: "【中吉】Stack Overflowに答えあり",
-                desc: "詰まっていたエラーの解決策が、検索の1件目で見つかります。",
-                item: "エナジードリンク",
-                lang: "Python"
+                title: "【中吉】過去問入手",
+                desc: "先輩から秘伝のUSBメモリを継承。テスト勉強時間が8割削減されます。",
+                item: "先輩のUSBメモリ",
+                spot: "部室・サークル部屋"
             },
             {
                 type: "common",
-                title: "【小吉】要件定義変更",
-                desc: "「やっぱりここ変えて」と言われますが、軽微な修正で済みそうです。",
-                item: "ブルーライトカットメガネ",
-                lang: "JavaScript"
+                title: "【小吉】代返成功",
+                desc: "友人が出席カードを出してくれました。今度ランチを奢りましょう。",
+                item: "学食のカレー",
+                spot: "食堂"
             },
             {
                 type: "common",
-                title: "【末吉】タイポの神",
-                desc: "エラーの原因はスペルミスです。30分探せば見つかるでしょう。",
-                item: "目薬",
-                lang: "HTML/CSS"
+                title: "【末吉】90分睡眠",
+                desc: "講義中、最高に気持ちよく眠れました。内容は全く覚えていません。",
+                item: "よだれ付きのノート",
+                spot: "教室の一番後ろの席"
             },
             {
                 type: "bad",
-                title: "【凶】マージコンフリクト",
-                desc: "同僚と同じファイルをいじってしまいました。手動解決の苦行が待っています。",
-                item: "鎮痛剤",
-                lang: "C++ (ポインタ地獄)"
+                title: "【凶】再履修の予感",
+                desc: "テストの手応えがありません。「不可」の文字が脳裏をよぎります。",
+                item: "履修登録要項",
+                spot: "教務課"
             },
             {
                 type: "bad",
-                title: "【大凶】金曜夕方のデプロイ",
-                desc: "定時直前のリリースでサーバーが落ちます。週末は潰れるでしょう。",
-                item: "寝袋",
-                lang: "Assembly"
+                title: "【大凶】提出期限切れ",
+                desc: "レポートの期限は昨日でした。教授の慈悲にすがるしかありません。",
+                item: "反省文と菓子折り",
+                spot: "教授室"
             },
             {
                 type: "bad",
-                title: "【特異点】全角スペースの呪い",
-                desc: "見た目は正しいコードなのに動きません。見えない文字がそこにいます。",
-                item: "テキストエディタの「制御文字を表示」機能",
-                lang: "Whitespace"
+                title: "【特異点】謎の単位認定",
+                desc: "出た記憶のない授業の単位が取れていました。深く考えてはいけません。",
+                item: "成績通知書",
+                spot: "異次元"
             }
         ];
 
@@ -197,38 +197,21 @@
         const btn = document.getElementById('drawBtn');
         let isProcessing = false;
 
-        function typeWriter(text, element, callback) {
-            let i = 0;
-            element.innerHTML = '<span class="prompt">$</span> ';
-            const interval = setInterval(() => {
-                element.innerHTML += text.charAt(i);
-                i++;
-                if (i > text.length - 1) {
-                    clearInterval(interval);
-                    if (callback) callback();
-                }
-            }, 30); // タイピング速度
-        }
-
         function drawFortune() {
             if (isProcessing) return;
             isProcessing = true;
             btn.disabled = true;
-            btn.innerText = "Building...";
+            btn.innerText = "Submitting...";
 
             // ターミナルをリセット
             output.innerHTML = '';
             
-            // ログ風の演出
-            const logElement = document.createElement('div');
-            output.appendChild(logElement);
-            
             const logs = [
-                "npm install luck...",
-                "resolving dependencies...",
-                "found 0 vulnerabilities...",
-                "compiling destiny...",
-                "build success!"
+                "searching for textbooks...",
+                "checking attendance rate...",
+                "copying friend's notes...",
+                "calculating GPA...",
+                "submission complete!"
             ];
 
             let logIndex = 0;
@@ -249,7 +232,6 @@
         }
 
         function showResult() {
-            // おみくじロジック（ランダム）
             const result = fortunes[Math.floor(Math.random() * fortunes.length)];
 
             setTimeout(() => {
@@ -259,7 +241,7 @@
                     <span class="result-title ${result.type}">${result.title}</span>
                     <div class="result-detail">Status: ${result.desc}</div>
                     <div class="result-detail">Lucky Item: ${result.item}</div>
-                    <div class="result-detail">Lucky Lang: ${result.lang}</div>
+                    <div class="result-detail">Lucky Spot: ${result.spot}</div>
                     <div style="margin-top:15px; color:#238636;">> Done in ${Math.random().toFixed(2)}s.</div>
                 `;
                 output.appendChild(resultDiv);
@@ -272,7 +254,7 @@
 
                 // ボタン復帰
                 btn.disabled = false;
-                btn.innerText = 'git commit -m "retry"';
+                btn.innerText = 're-submit assignment';
                 isProcessing = false;
             }, 500);
         }
